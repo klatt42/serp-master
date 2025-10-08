@@ -35,11 +35,14 @@ from app.services.competitor_analyzer import CompetitorAnalyzer
 from app.services.supabase_client import SupabaseComparisonStore
 from app.services.keyword_discoverer import KeywordDiscoverer
 from app.services.opportunity_scorer import OpportunityScorer
+from app.services.keyword_clusterer import KeywordClusterer
+from app.services.niche_analyzer import NicheAnalyzer
 from app.models.opportunity import (
     NicheDiscoveryRequest,
     NicheDiscoveryResponse,
     OpportunityFilters
 )
+from app.models.cluster import ClusterAnalysis
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -728,3 +731,81 @@ async def niche_discovery_health():
             "content_recommendations"
         ]
     }
+
+
+@router.post("/api/niche/analyze")
+async def analyze_niche_complete(request: NicheDiscoveryRequest):
+    """
+    Complete niche analysis with clustering and market analysis
+
+    This endpoint:
+    1. Discovers keywords using DataForSEO
+    2. Scores opportunities based on multiple factors
+    3. Clusters keywords into semantic groups
+    4. Analyzes market dynamics and competition
+    5. Identifies content gaps and opportunities
+
+    Returns:
+        - Discovered opportunities (scored keywords)
+        - Keyword clusters (grouped by theme)
+        - Market analysis (size, competition, strategy)
+        - Content gaps (opportunities)
+        - Summary statistics
+    """
+    try:
+        logger.info(f"Starting complete niche analysis for: {request.seed_keyword}")
+
+        # Step 1: Discover keywords using DataForSEO
+        async with KeywordDiscoverer() as discoverer:
+            keyword_batch = await discoverer.discover_keywords(
+                seed_keyword=request.seed_keyword,
+                limit=200  # Get more keywords for better analysis
+            )
+
+        logger.info(f"Discovered {keyword_batch.total_found} keywords for '{request.seed_keyword}'")
+
+        # Step 2: Score opportunities
+        scorer = OpportunityScorer(filters=request.filters)
+        opportunities = scorer.score_keywords(keyword_batch.keywords)
+
+        logger.info(f"Scored {len(opportunities)} opportunities")
+
+        # Step 3: Cluster keywords
+        clusterer = KeywordClusterer()
+        clusters = clusterer.cluster_keywords(keyword_batch.keywords)
+
+        logger.info(f"Created {len(clusters)} keyword clusters")
+
+        # Step 4: Analyze niche
+        analyzer = NicheAnalyzer()
+        niche_analysis = analyzer.analyze_niche(
+            seed_keyword=request.seed_keyword,
+            keywords=keyword_batch.keywords,
+            clusters=clusters
+        )
+
+        logger.info(f"Niche analysis complete: {niche_analysis.market_size} market, {niche_analysis.competition_level} competition")
+
+        # Step 5: Return comprehensive analysis
+        return {
+            "seed_keyword": request.seed_keyword,
+            "opportunities": [opp.dict() for opp in opportunities[:request.limit]],
+            "clusters": [cluster.dict() for cluster in clusters],
+            "niche_analysis": niche_analysis.dict(),
+            "summary": {
+                "total_keywords": len(keyword_batch.keywords),
+                "total_clusters": len(clusters),
+                "opportunities_found": len(opportunities[:request.limit]),
+                "market_size": niche_analysis.market_size,
+                "competition_level": niche_analysis.competition_level,
+                "confidence_score": niche_analysis.confidence_score,
+                "top_opportunity_score": opportunities[0].opportunity_score if opportunities else 0
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"Error analyzing niche for '{request.seed_keyword}': {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error analyzing niche: {str(e)}"
+        )
