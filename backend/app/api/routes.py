@@ -7,7 +7,7 @@ import os
 import asyncio
 import logging
 from fastapi import APIRouter, HTTPException, BackgroundTasks
-from typing import Dict
+from typing import Dict, List
 from datetime import datetime
 
 from app.models import (
@@ -18,7 +18,12 @@ from app.models import (
     AuditStatus,
     HealthResponse,
     ManualAuditRequest,
-    QuickWinsResponse
+    QuickWinsResponse,
+    CompetitorComparisonRequest,
+    CompetitorComparisonStartResponse,
+    CompetitorComparisonStatus,
+    CompetitorComparisonStatusResponse,
+    CompetitorComparisonResults
 )
 from app.services.site_crawler import SiteCrawler
 from app.services.seo_scorer import SEOScorer
@@ -26,6 +31,7 @@ from app.services.issue_analyzer import IssueAnalyzer
 from app.services.aeo_scorer import AEOScorer
 from app.services.geo_scorer import GEOScorer
 from app.services.mock_data import generate_mock_site
+from app.services.competitor_analyzer import CompetitorAnalyzer
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -36,6 +42,9 @@ router = APIRouter()
 
 # In-memory storage for audit tasks (replace with database in production)
 audit_tasks: Dict[str, Dict] = {}
+
+# In-memory storage for competitor comparison tasks (Week 4)
+comparison_tasks: Dict[str, Dict] = {}
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -285,6 +294,215 @@ async def get_quick_wins(task_id: str):
         url=task_data["url"],
         quick_wins=quick_wins
     )
+
+
+# ============================================================================
+# Week 4: Competitor Comparison Endpoints
+# ============================================================================
+
+@router.post("/api/compare/start", response_model=CompetitorComparisonStartResponse)
+async def start_competitor_comparison(
+    request: CompetitorComparisonRequest,
+    background_tasks: BackgroundTasks
+):
+    """
+    Start a new competitor comparison analysis
+
+    Compares your website against 1-3 competitors across all scoring dimensions.
+    Returns immediately with a comparison_id while analysis runs in background.
+
+    Args:
+        request: Comparison request with user URL, competitor URLs, and max pages
+        background_tasks: FastAPI background tasks
+
+    Returns:
+        Comparison ID and status information
+    """
+    try:
+        # Validate request
+        if len(request.competitor_urls) == 0:
+            raise HTTPException(status_code=400, detail="At least 1 competitor URL required")
+
+        if len(request.competitor_urls) > 3:
+            raise HTTPException(status_code=400, detail="Maximum 3 competitor URLs allowed")
+
+        if request.user_url in request.competitor_urls:
+            raise HTTPException(status_code=400, detail="User URL cannot be in competitor list")
+
+        # Generate comparison ID
+        comparison_id = f"comp_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{id(request)}"
+
+        # Calculate estimated time (50-70 seconds per site)
+        sites_total = 1 + len(request.competitor_urls)
+        estimated_time = sites_total * 60
+
+        # Initialize task in storage
+        comparison_tasks[comparison_id] = {
+            "comparison_id": comparison_id,
+            "user_url": request.user_url,
+            "competitor_urls": request.competitor_urls,
+            "max_pages": request.max_pages,
+            "status": CompetitorComparisonStatus.CRAWLING,
+            "progress": 0,
+            "sites_completed": 0,
+            "sites_total": sites_total,
+            "created_at": datetime.now().isoformat(),
+            "result": None,
+            "error": None
+        }
+
+        # Start background task
+        background_tasks.add_task(
+            run_competitor_comparison,
+            comparison_id,
+            request.user_url,
+            request.competitor_urls,
+            request.max_pages
+        )
+
+        logger.info(f"Started comparison {comparison_id}: {request.user_url} vs {len(request.competitor_urls)} competitors")
+
+        return CompetitorComparisonStartResponse(
+            comparison_id=comparison_id,
+            status=CompetitorComparisonStatus.CRAWLING,
+            sites_to_analyze=sites_total,
+            estimated_time_seconds=estimated_time
+        )
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Failed to start comparison: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to start comparison: {str(e)}")
+
+
+@router.get("/api/compare/status/{comparison_id}", response_model=CompetitorComparisonStatusResponse)
+async def get_comparison_status(comparison_id: str):
+    """
+    Get the status of a competitor comparison
+
+    Args:
+        comparison_id: Comparison ID from start_competitor_comparison
+
+    Returns:
+        Current status, progress, and site completion info
+    """
+    if comparison_id not in comparison_tasks:
+        raise HTTPException(status_code=404, detail="Comparison not found")
+
+    task_data = comparison_tasks[comparison_id]
+
+    return CompetitorComparisonStatusResponse(
+        comparison_id=comparison_id,
+        status=task_data["status"],
+        progress=task_data["progress"],
+        sites_completed=task_data["sites_completed"],
+        sites_total=task_data["sites_total"],
+        message=task_data.get("error")
+    )
+
+
+@router.get("/api/compare/results/{comparison_id}")
+async def get_comparison_results(comparison_id: str):
+    """
+    Get complete competitor comparison results
+
+    Args:
+        comparison_id: Comparison ID from start_competitor_comparison
+
+    Returns:
+        Complete comparison results with gaps, strategy, and quick wins
+
+    Raises:
+        404: If comparison not found
+        425: If comparison not complete yet
+        500: If comparison failed
+    """
+    if comparison_id not in comparison_tasks:
+        raise HTTPException(status_code=404, detail="Comparison not found")
+
+    task_data = comparison_tasks[comparison_id]
+
+    # Check status
+    if task_data["status"] in [CompetitorComparisonStatus.CRAWLING, CompetitorComparisonStatus.ANALYZING]:
+        raise HTTPException(
+            status_code=425,
+            detail=f"Comparison still {task_data['status']}. Check status endpoint for progress."
+        )
+
+    if task_data["status"] == CompetitorComparisonStatus.FAILED:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Comparison failed: {task_data.get('error', 'Unknown error')}"
+        )
+
+    # Return results
+    if not task_data.get("result"):
+        raise HTTPException(status_code=500, detail="No results available")
+
+    return task_data["result"]
+
+
+async def run_competitor_comparison(
+    comparison_id: str,
+    user_url: str,
+    competitor_urls: List[str],
+    max_pages: int
+):
+    """
+    Background task to run competitor comparison analysis
+
+    This function:
+    1. Audits all sites in parallel (user + competitors)
+    2. Compares scores and calculates rankings
+    3. Identifies competitive gaps
+    4. Generates strategic recommendations
+    5. Identifies quick wins
+
+    Args:
+        comparison_id: Comparison task identifier
+        user_url: User's website URL
+        competitor_urls: List of competitor URLs
+        max_pages: Max pages to crawl per site
+    """
+    try:
+        logger.info(f"Running comparison {comparison_id}: {user_url} vs {len(competitor_urls)} competitors")
+
+        # Update progress
+        comparison_tasks[comparison_id]["progress"] = 5
+        comparison_tasks[comparison_id]["status"] = CompetitorComparisonStatus.CRAWLING
+
+        # Initialize analyzer
+        analyzer = CompetitorAnalyzer()
+
+        comparison_tasks[comparison_id]["progress"] = 10
+
+        # Run full competitor analysis
+        results = await analyzer.analyze_competitors(
+            user_url=user_url,
+            competitor_urls=competitor_urls,
+            max_pages=max_pages
+        )
+
+        comparison_tasks[comparison_id]["progress"] = 90
+        comparison_tasks[comparison_id]["status"] = CompetitorComparisonStatus.ANALYZING
+
+        # Add comparison_id to results
+        results["comparison_id"] = comparison_id
+
+        # Store results
+        comparison_tasks[comparison_id]["result"] = results
+        comparison_tasks[comparison_id]["status"] = CompetitorComparisonStatus.COMPLETE
+        comparison_tasks[comparison_id]["progress"] = 100
+        comparison_tasks[comparison_id]["sites_completed"] = 1 + len(competitor_urls)
+
+        logger.info(f"Comparison {comparison_id} completed successfully")
+
+    except Exception as e:
+        logger.error(f"Comparison {comparison_id} failed: {str(e)}")
+        comparison_tasks[comparison_id]["status"] = CompetitorComparisonStatus.FAILED
+        comparison_tasks[comparison_id]["error"] = str(e)
+        comparison_tasks[comparison_id]["progress"] = 0
 
 
 async def run_audit(task_id: str, url: str, max_pages: int):

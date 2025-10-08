@@ -116,3 +116,96 @@ class QuickWinsResponse(BaseModel):
     task_id: str
     url: str
     quick_wins: List[QuickWin]
+
+
+# Week 4: Competitor Comparison Models
+
+class CompetitorComparisonRequest(BaseModel):
+    """Request model for competitor comparison analysis"""
+    user_url: str = Field(..., description="Your website URL")
+    competitor_urls: List[str] = Field(..., min_items=1, max_items=3, description="Competitor URLs (1-3)")
+    max_pages: int = Field(default=50, ge=1, le=100, description="Max pages to crawl per site")
+
+
+class CompetitorComparisonStatus(str, Enum):
+    """Comparison analysis status"""
+    CRAWLING = "crawling"
+    ANALYZING = "analyzing"
+    COMPLETE = "complete"
+    FAILED = "failed"
+
+
+class CompetitorComparisonStartResponse(BaseModel):
+    """Response when starting competitor comparison"""
+    comparison_id: str = Field(..., description="Unique comparison task ID")
+    status: CompetitorComparisonStatus
+    sites_to_analyze: int = Field(..., description="Total number of sites")
+    estimated_time_seconds: int = Field(..., description="Estimated completion time")
+
+
+class CompetitorComparisonStatusResponse(BaseModel):
+    """Status of a running comparison"""
+    comparison_id: str
+    status: CompetitorComparisonStatus
+    progress: int = Field(ge=0, le=100)
+    sites_completed: int
+    sites_total: int
+    message: Optional[str] = None
+
+
+class SiteComparisonData(BaseModel):
+    """Individual site data in comparison"""
+    url: str
+    total_score: int
+    rank: int
+    scores: Dict[str, Any]
+
+
+class CompetitiveGap(BaseModel):
+    """A gap where competitor is stronger"""
+    dimension: str
+    issue: str
+    user_score: float
+    competitor_score: float
+    competitor_url: str
+    gap: float
+    category: str
+    priority: str
+
+
+class CompetitiveAction(BaseModel):
+    """Strategic action recommendation"""
+    action: str
+    description: str
+    dimension: str
+    impact: float
+    effort: str
+    beats: List[str]
+    current_rank: int
+    potential_rank: int
+    priority: str
+    related_competitor: str
+
+
+class CompetitorQuickWin(BaseModel):
+    """Quick win against competitors"""
+    fix: str
+    description: str
+    beats: List[str]
+    impact: float
+    effort: str
+    dimension: str
+    rank_improvement: int
+
+
+class CompetitorComparisonResults(BaseModel):
+    """Complete competitor comparison results"""
+    comparison_id: str
+    user_site: SiteComparisonData
+    competitors: List[SiteComparisonData]
+    comparison: Dict[str, Any]
+    gaps: List[CompetitiveGap]
+    competitive_strategy: List[CompetitiveAction]
+    quick_wins: List[CompetitorQuickWin]
+    analysis_date: str
+    sites_analyzed: int

@@ -186,3 +186,170 @@ export function normalizeUrl(url: string): string {
   }
   return url;
 }
+
+// ============================================================================
+// Week 4: Competitor Comparison API Functions
+// ============================================================================
+
+export interface ComparisonStartResponse {
+  comparison_id: string;
+  status: 'crawling' | 'analyzing' | 'complete' | 'failed';
+  sites_to_analyze: number;
+  estimated_time_seconds: number;
+}
+
+export interface ComparisonStatusResponse {
+  comparison_id: string;
+  status: 'crawling' | 'analyzing' | 'complete' | 'failed';
+  progress: number;
+  sites_completed: number;
+  sites_total: number;
+  message?: string;
+}
+
+export interface SiteComparisonData {
+  url: string;
+  total_score: number;
+  rank: number;
+  scores: Record<string, unknown>;
+}
+
+export interface CompetitiveGap {
+  dimension: string;
+  issue: string;
+  user_score: number;
+  competitor_score: number;
+  competitor_url: string;
+  gap: number;
+  category: string;
+  priority: string;
+}
+
+export interface CompetitiveAction {
+  action: string;
+  description: string;
+  dimension: string;
+  impact: number;
+  effort: string;
+  beats: string[];
+  current_rank: number;
+  potential_rank: number;
+  priority: string;
+  related_competitor: string;
+}
+
+export interface CompetitorQuickWin {
+  fix: string;
+  description: string;
+  beats: string[];
+  impact: number;
+  effort: string;
+  dimension: string;
+  rank_improvement: number;
+}
+
+export interface ComparisonResults {
+  comparison_id: string;
+  user_site: SiteComparisonData;
+  competitors: SiteComparisonData[];
+  comparison: {
+    user_rank: number;
+    total_sites: number;
+    user_score: number;
+    highest_competitor_score: number;
+    lowest_competitor_score: number;
+    average_competitor_score: number;
+    score_gap_to_first: number;
+    rankings: Array<{
+      rank: number;
+      url: string;
+      score: number;
+    }>;
+  };
+  gaps: CompetitiveGap[];
+  competitive_strategy: CompetitiveAction[];
+  quick_wins: CompetitorQuickWin[];
+  analysis_date: string;
+  sites_analyzed: number;
+}
+
+/**
+ * Start a new competitor comparison
+ */
+export async function startComparison(
+  userUrl: string,
+  competitorUrls: string[],
+  maxPages: number = 50
+): Promise<ComparisonStartResponse> {
+  const response = await apiClient.post<ComparisonStartResponse>('/api/compare/start', {
+    user_url: userUrl,
+    competitor_urls: competitorUrls,
+    max_pages: maxPages,
+  });
+  return response.data;
+}
+
+/**
+ * Check comparison status
+ */
+export async function getComparisonStatus(comparisonId: string): Promise<ComparisonStatusResponse> {
+  const response = await apiClient.get<ComparisonStatusResponse>(`/api/compare/status/${comparisonId}`);
+  return response.data;
+}
+
+/**
+ * Get comparison results
+ */
+export async function getComparisonResults(comparisonId: string): Promise<ComparisonResults> {
+  const response = await apiClient.get<ComparisonResults>(`/api/compare/results/${comparisonId}`);
+  return response.data;
+}
+
+/**
+ * Poll comparison status until complete
+ */
+export async function pollComparisonStatus(
+  comparisonId: string,
+  onProgress?: (status: ComparisonStatusResponse) => void,
+  intervalMs: number = 5000,
+  timeoutMs: number = 900000 // 15 minutes (longer for multiple sites)
+): Promise<ComparisonStatusResponse> {
+  const startTime = Date.now();
+
+  return new Promise((resolve, reject) => {
+    const poll = async () => {
+      try {
+        const status = await getComparisonStatus(comparisonId);
+
+        if (onProgress) {
+          onProgress(status);
+        }
+
+        // Check if complete
+        if (status.status === 'complete') {
+          resolve(status);
+          return;
+        }
+
+        // Check if failed
+        if (status.status === 'failed') {
+          reject(new Error(status.message || 'Comparison failed'));
+          return;
+        }
+
+        // Check timeout
+        if (Date.now() - startTime > timeoutMs) {
+          reject(new Error('Comparison timeout'));
+          return;
+        }
+
+        // Continue polling
+        setTimeout(poll, intervalMs);
+      } catch (error) {
+        reject(error);
+      }
+    };
+
+    poll();
+  });
+}
