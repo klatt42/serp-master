@@ -1,0 +1,68 @@
+[
+  {
+    "task_id": "task-001",
+    "title": "Setup DataForSEO API Integration",
+    "description": "Integrate DataForSEO APIs for keyword research, SERP data, and site auditing",
+    "priority": 1,
+    "estimated_hours": 8,
+    "feature": "API Integration",
+    "status": "in_progress",
+    "assigned_to": "claude",
+    "dependencies": []
+  },
+  {
+    "task_id": "task-002",
+    "title": "Build SEO Assistant Chat Interface",
+    "description": "Implement CopilotKit-powered conversational SEO assistant with specialized agents",
+    "priority": 2,
+    "estimated_hours": 12,
+    "feature": "AI Assistant",
+    "status": "in_progress",
+    "assigned_to": "claude",
+    "dependencies": ["task-001"]
+  },
+  {
+    "task_id": "task-003",
+    "title": "Create Keyword Research Dashboard",
+    "description": "Build interactive dashboard for keyword discovery, clustering, and opportunity analysis using AG-UI components",
+    "priority": 3,
+    "estimated_hours": 10,
+    "feature": "Keyword Research",
+    "status": "pending",
+    "assigned_to": "claude",
+    "dependencies": ["task-001", "task-002"]
+  },
+  {
+    "task_id": "task-004",
+    "title": "Implement Technical SEO Audit Engine",
+    "description": "Automated site auditing with Core Web Vitals, mobile optimization, and schema validation",
+    "priority": 4,
+    "estimated_hours": 15,
+    "feature": "Technical SEO",
+    "status": "pending",
+    "assigned_to": "claude",
+    "dependencies": ["task-001"]
+  },
+  {
+    "task_id": "task-005",
+    "title": "Build Content Optimization Agent",
+    "description": "Real-time content scoring and optimization suggestions with AI-powered improvements",
+    "priority": 5,
+    "estimated_hours": 12,
+    "feature": "Content Optimization",
+    "status": "pending",
+    "assigned_to": "claude",
+    "dependencies": ["task-002"]
+  },
+  {
+    "task_id": "task-006",
+    "title": "Setup Supabase Database Schema",
+    "description": "Create tables for users, projects, keywords, rankings, and audit history",
+    "priority": 1,
+    "estimated_hours": 6,
+    "feature": "Database",
+    "status": "pending",
+    "assigned_to": "claude",
+    "dependencies": []
+  }
+]

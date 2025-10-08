@@ -1,0 +1,26 @@
+fastapi>=0.111.1,<0.112.0
+uvicorn[standard]==0.27.0
+copilotkit==0.1.0
+pydantic>=2.5.3
+pydantic-settings>=2.1.0
+python-dotenv==1.0.0
+httpx>=0.26.0
+python-multipart>=0.0.6
+supabase>=2.3.0
+langchain>=0.1.0
+langchain-openai>=0.0.5
+langgraph>=0.0.20
+beautifulsoup4>=4.12.0
+aiofiles>=23.2.0
+aiohttp>=3.9.0
+requests>=2.31.0
+
+# Week 2 - AEO Scoring Dependencies
+textstat==0.7.10
+lxml==6.0.2
+nltk==3.9.2
+pyphen==0.17.2
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0

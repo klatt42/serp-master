@@ -1,0 +1,15 @@
+{
+  "project_id": "serp-master-001",
+  "title": "SERP-Master SEO Tool",
+  "description": "AI-powered SEO tool for small businesses using CopilotKit, AG-UI and DataForSEO APIs",
+  "github_repo": "serp-master",
+  "stack": {
+    "frontend": "React TypeScript + Vite + CopilotKit + AG-UI",
+    "backend": "FastAPI + LangGraph + CopilotKit SDK",
+    "database": "Supabase",
+    "apis": ["DataForSEO", "OpenAI", "Google Search Console"]
+  },
+  "created": "2025-09-30",
+  "status": "active",
+  "version": "1.0.0"
+}
