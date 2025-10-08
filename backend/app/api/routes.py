@@ -33,6 +33,13 @@ from app.services.geo_scorer import GEOScorer
 from app.services.mock_data import generate_mock_site
 from app.services.competitor_analyzer import CompetitorAnalyzer
 from app.services.supabase_client import SupabaseComparisonStore
+from app.services.keyword_discoverer import KeywordDiscoverer
+from app.services.opportunity_scorer import OpportunityScorer
+from app.models.opportunity import (
+    NicheDiscoveryRequest,
+    NicheDiscoveryResponse,
+    OpportunityFilters
+)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -623,3 +630,101 @@ async def run_audit(task_id: str, url: str, max_pages: int):
         audit_tasks[task_id]["status"] = AuditStatus.FAILED
         audit_tasks[task_id]["error"] = str(e)
         audit_tasks[task_id]["progress"] = 0
+
+
+# ============================================================================
+# Week 5: Niche Discovery Endpoints
+# ============================================================================
+
+@router.post("/api/niche/discover", response_model=NicheDiscoveryResponse)
+async def discover_niche_opportunities(request: NicheDiscoveryRequest):
+    """
+    Discover keyword opportunities for a niche
+
+    This endpoint:
+    1. Uses DataForSEO to discover related keywords
+    2. Scores each keyword based on volume, difficulty, CPC, competition
+    3. Filters based on provided criteria
+    4. Returns top opportunities ranked by score
+
+    Args:
+        request: Niche discovery parameters including seed keyword and filters
+
+    Returns:
+        Discovered opportunities with scores and recommendations
+
+    Raises:
+        500: If discovery fails
+    """
+    try:
+        logger.info(f"Discovering niche opportunities for: {request.seed_keyword}")
+
+        # Step 1: Discover keywords using DataForSEO
+        async with KeywordDiscoverer() as discoverer:
+            keyword_batch = await discoverer.discover_keywords(
+                seed_keyword=request.seed_keyword,
+                limit=200  # Get more keywords to filter from
+            )
+
+        logger.info(f"Found {keyword_batch.total_found} keywords for '{request.seed_keyword}'")
+
+        # Step 2: Score and filter opportunities
+        scorer = OpportunityScorer(filters=request.filters)
+        opportunities = scorer.score_keywords(keyword_batch.keywords)
+
+        logger.info(f"Scored {len(opportunities)} opportunities after filtering")
+
+        # Step 3: Limit to requested count
+        top_opportunities = opportunities[:request.limit]
+
+        # Step 4: Calculate summary statistics
+        if top_opportunities:
+            avg_score = sum(opp.opportunity_score for opp in top_opportunities) / len(top_opportunities)
+            best_opp = max(top_opportunities, key=lambda x: x.opportunity_score)
+        else:
+            avg_score = 0
+            best_opp = None
+
+        summary_stats = {
+            "total_volume": sum(opp.search_volume for opp in top_opportunities),
+            "avg_difficulty": sum(opp.keyword_difficulty for opp in top_opportunities) / len(top_opportunities) if top_opportunities else 0,
+            "avg_cpc": sum(opp.cpc for opp in top_opportunities) / len(top_opportunities) if top_opportunities else 0,
+            "excellent_count": sum(1 for opp in top_opportunities if opp.opportunity_level == "excellent"),
+            "good_count": sum(1 for opp in top_opportunities if opp.opportunity_level == "good"),
+            "moderate_count": sum(1 for opp in top_opportunities if opp.opportunity_level == "moderate"),
+        }
+
+        logger.info(f"Niche discovery complete for '{request.seed_keyword}': {len(top_opportunities)} opportunities")
+
+        return NicheDiscoveryResponse(
+            seed_keyword=request.seed_keyword,
+            total_keywords_analyzed=keyword_batch.total_found,
+            opportunities_found=len(top_opportunities),
+            opportunities=top_opportunities,
+            avg_opportunity_score=avg_score,
+            best_opportunity=best_opp,
+            summary_stats=summary_stats
+        )
+
+    except Exception as e:
+        logger.error(f"Error discovering opportunities for '{request.seed_keyword}': {str(e)}")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Error discovering opportunities: {str(e)}"
+        )
+
+
+@router.get("/api/niche/health")
+async def niche_discovery_health():
+    """Health check for niche discovery service"""
+    return {
+        "status": "healthy",
+        "service": "niche_discovery",
+        "version": "1.0.0",
+        "features": [
+            "keyword_discovery",
+            "opportunity_scoring",
+            "intent_classification",
+            "content_recommendations"
+        ]
+    }
