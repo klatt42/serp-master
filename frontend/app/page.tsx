@@ -23,8 +23,8 @@ export default function Home() {
           {/* Audit Input Form */}
           <AuditInputForm />
 
-          {/* Comparison CTA */}
-          <div className="mt-8 text-center">
+          {/* Additional Tools */}
+          <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
             <Link
               href="/compare"
               className="inline-flex items-center px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
@@ -32,10 +32,17 @@ export default function Home() {
               <Users className="w-5 h-5 mr-2" />
               Compare Against Competitors
             </Link>
-            <p className="mt-2 text-sm text-gray-500">
-              Benchmark your site vs up to 3 competitors
-            </p>
+            <Link
+              href="/platform-strategy"
+              className="inline-flex items-center px-6 py-3 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium"
+            >
+              <Brain className="w-5 h-5 mr-2" />
+              Multi-Platform Strategy
+            </Link>
           </div>
+          <p className="mt-3 text-sm text-gray-500 text-center">
+            Benchmark against competitors or discover cross-platform content opportunities
+          </p>
 
           {/* Features List */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
