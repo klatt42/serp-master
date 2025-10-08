@@ -1,5 +1,5 @@
 import AuditInputForm from './components/AuditInputForm';
-import { Target, Zap, Shield, Brain, Users } from 'lucide-react';
+import { Target, Zap, Shield, Brain, Users, BarChart, FileText } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -24,24 +24,38 @@ export default function Home() {
           <AuditInputForm />
 
           {/* Additional Tools */}
-          <div className="mt-8 flex flex-col sm:flex-row justify-center items-center gap-4">
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
             <Link
               href="/compare"
-              className="inline-flex items-center px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
+              className="inline-flex items-center justify-center px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
             >
               <Users className="w-5 h-5 mr-2" />
-              Compare Against Competitors
+              Competitor Analysis
             </Link>
             <Link
               href="/platform-strategy"
-              className="inline-flex items-center px-6 py-3 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium"
+              className="inline-flex items-center justify-center px-6 py-3 border-2 border-purple-600 text-purple-600 rounded-lg hover:bg-purple-50 transition-colors font-medium"
             >
               <Brain className="w-5 h-5 mr-2" />
-              Multi-Platform Strategy
+              Platform Strategy
+            </Link>
+            <Link
+              href="/competitors"
+              className="inline-flex items-center justify-center px-6 py-3 border-2 border-orange-600 text-orange-600 rounded-lg hover:bg-orange-50 transition-colors font-medium"
+            >
+              <BarChart className="w-5 h-5 mr-2" />
+              Competitive Intel
+            </Link>
+            <Link
+              href="/content-studio"
+              className="inline-flex items-center justify-center px-6 py-3 border-2 border-green-600 text-green-600 rounded-lg hover:bg-green-50 transition-colors font-medium"
+            >
+              <FileText className="w-5 h-5 mr-2" />
+              Content Studio
             </Link>
           </div>
           <p className="mt-3 text-sm text-gray-500 text-center">
-            Benchmark against competitors or discover cross-platform content opportunities
+            Advanced competitive intelligence and automated content creation tools
           </p>
 
           {/* Features List */}

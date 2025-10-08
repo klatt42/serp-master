@@ -8,7 +8,7 @@ export function Providers({ children }: { children: ReactNode }) {
     <CopilotKit
       runtimeUrl="/api/copilotkit"
       // CopilotKit configuration
-      showDevConsole={process.env.NODE_ENV === "development"}
+      showDevConsole={false} // Disabled to reduce UI clutter in development
     >
       {children}
     </CopilotKit>

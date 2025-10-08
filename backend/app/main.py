@@ -12,6 +12,8 @@ from contextlib import asynccontextmanager
 from app.api.routes import router
 from app.api.strategy_routes import router as strategy_router
 from app.api.platform_routes import router as platform_router
+from app.api.competitive_routes import router as competitive_router
+from app.api.content_routes import router as content_router
 from app.services.dataforseo_client import DataForSEOClient
 
 # Configure logging
@@ -67,6 +69,8 @@ app.add_middleware(
 app.include_router(router)
 app.include_router(strategy_router)
 app.include_router(platform_router)
+app.include_router(competitive_router)
+app.include_router(content_router)
 
 # Global exception handler
 @app.exception_handler(Exception)
