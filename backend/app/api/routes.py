@@ -32,6 +32,7 @@ from app.services.aeo_scorer import AEOScorer
 from app.services.geo_scorer import GEOScorer
 from app.services.mock_data import generate_mock_site
 from app.services.competitor_analyzer import CompetitorAnalyzer
+from app.services.supabase_client import SupabaseComparisonStore
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -45,6 +46,9 @@ audit_tasks: Dict[str, Dict] = {}
 
 # In-memory storage for competitor comparison tasks (Week 4)
 comparison_tasks: Dict[str, Dict] = {}
+
+# Supabase storage for comparisons (Week 4 Phase 4E)
+supabase_store = SupabaseComparisonStore()
 
 
 @router.get("/health", response_model=HealthResponse)
@@ -490,11 +494,26 @@ async def run_competitor_comparison(
         # Add comparison_id to results
         results["comparison_id"] = comparison_id
 
-        # Store results
+        # Store results in memory
         comparison_tasks[comparison_id]["result"] = results
         comparison_tasks[comparison_id]["status"] = CompetitorComparisonStatus.COMPLETE
         comparison_tasks[comparison_id]["progress"] = 100
         comparison_tasks[comparison_id]["sites_completed"] = 1 + len(competitor_urls)
+
+        # Save to Supabase (non-blocking, best-effort)
+        try:
+            await supabase_store.save_comparison(
+                comparison_id=comparison_id,
+                user_url=user_url,
+                competitor_urls=competitor_urls,
+                max_pages=max_pages,
+                status="complete",
+                progress=100,
+                results=results
+            )
+        except Exception as db_error:
+            logger.warning(f"Failed to save comparison to Supabase: {db_error}")
+            # Continue anyway - results are in memory
 
         logger.info(f"Comparison {comparison_id} completed successfully")
 

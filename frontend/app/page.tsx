@@ -1,5 +1,6 @@
 import AuditInputForm from './components/AuditInputForm';
-import { Target, Zap, Shield, Brain } from 'lucide-react';
+import { Target, Zap, Shield, Brain, Users } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -21,6 +22,20 @@ export default function Home() {
 
           {/* Audit Input Form */}
           <AuditInputForm />
+
+          {/* Comparison CTA */}
+          <div className="mt-8 text-center">
+            <Link
+              href="/compare"
+              className="inline-flex items-center px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
+            >
+              <Users className="w-5 h-5 mr-2" />
+              Compare Against Competitors
+            </Link>
+            <p className="mt-2 text-sm text-gray-500">
+              Benchmark your site vs up to 3 competitors
+            </p>
+          </div>
 
           {/* Features List */}
           <div className="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
