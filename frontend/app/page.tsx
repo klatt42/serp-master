@@ -1,5 +1,5 @@
 import AuditInputForm from './components/AuditInputForm';
-import { Target, Zap, Shield, Brain, Users, BarChart, FileText } from 'lucide-react';
+import { Target, Zap, Shield, Brain, Users, BarChart, FileText, Activity } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
@@ -24,7 +24,7 @@ export default function Home() {
           <AuditInputForm />
 
           {/* Additional Tools */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 max-w-6xl mx-auto">
             <Link
               href="/compare"
               className="inline-flex items-center justify-center px-6 py-3 border-2 border-blue-600 text-blue-600 rounded-lg hover:bg-blue-50 transition-colors font-medium"
@@ -53,9 +53,16 @@ export default function Home() {
               <FileText className="w-5 h-5 mr-2" />
               Content Studio
             </Link>
+            <Link
+              href="/automation"
+              className="inline-flex items-center justify-center px-6 py-3 border-2 border-indigo-600 text-indigo-600 rounded-lg hover:bg-indigo-50 transition-colors font-medium"
+            >
+              <Activity className="w-5 h-5 mr-2" />
+              Automation
+            </Link>
           </div>
           <p className="mt-3 text-sm text-gray-500 text-center">
-            Advanced competitive intelligence and automated content creation tools
+            AI-powered automation, competitive intelligence, and content creation tools
           </p>
 
           {/* Features List */}
