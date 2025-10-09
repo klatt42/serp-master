@@ -1,0 +1,28 @@
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "{{service_name}}",
+  "description": "{{service_description}}",
+  "serviceType": "{{service_type}}",
+  "provider": {
+    "@type": "{{business_type}}",
+    "name": "{{business_name}}",
+    "url": "{{website_url}}",
+    "telephone": "{{phone}}",
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": "{{city}}",
+      "addressRegion": "{{state}}"
+    }
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "{{service_area}}"
+  },
+  "offers": {
+    "@type": "Offer",
+    "price": "{{price}}",
+    "priceCurrency": "USD",
+    "availability": "https://schema.org/InStock"
+  }
+}

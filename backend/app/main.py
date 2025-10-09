@@ -16,6 +16,7 @@ from app.api.competitive_routes import router as competitive_router
 from app.api.content_routes import router as content_router
 from app.api.automation_routes import router as automation_router
 from app.api.generation_routes import router as generation_router
+from app.api.entity_routes import router as entity_router
 from app.services.dataforseo_client import DataForSEOClient
 
 # Configure logging
@@ -75,6 +76,7 @@ app.include_router(competitive_router)
 app.include_router(content_router)
 app.include_router(automation_router)
 app.include_router(generation_router)
+app.include_router(entity_router)
 
 # Global exception handler
 @app.exception_handler(Exception)
