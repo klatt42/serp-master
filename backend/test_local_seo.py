@@ -196,14 +196,71 @@ def test_gbp_optimization():
     return response.status_code == 200
 
 
+def test_local_schema_generation():
+    """Test local schema markup generation"""
+    print_section("Test 5: Local Schema Markup Generation")
+
+    # Test with Restaurant type
+    data = {
+        "site_url": "https://example-restaurant.com",
+        "business_type": "Restaurant",
+        "include_service_area": True,
+        "include_hours": True
+    }
+
+    print("Request data:")
+    pprint(data)
+    print()
+
+    response = requests.post(
+        f"{BASE_URL}/api/local/schema/generate",
+        json=data
+    )
+
+    print(f"Status: {response.status_code}")
+    result = response.json()
+
+    print(f"\n📋 Schema Details:")
+    print(f"  Detected Type: {result['detected_type']}")
+    print(f"  Validation Status: {result['validation_status'].upper()}")
+    print(f"  Rich Features: {len(result['rich_features_eligible'])}")
+
+    if result['rich_features_eligible']:
+        print(f"\n✨ Eligible Rich Results:")
+        for feature in result['rich_features_eligible'][:5]:
+            feature_name = feature.replace("_", " ").title()
+            print(f"  • {feature_name}")
+
+    print(f"\n🔍 Validation Messages:")
+    for msg in result['validation_messages'][:3]:
+        print(f"  • {msg}")
+
+    # Check schema structure
+    json_ld = result['json_ld']
+    print(f"\n📊 Schema Structure:")
+    print(f"  @type: {json_ld.get('@type')}")
+    print(f"  Name: {json_ld.get('name')}")
+    print(f"  Address: {'✓' if json_ld.get('address') else '✗'}")
+    print(f"  Phone: {'✓' if json_ld.get('telephone') else '✗'}")
+    print(f"  Hours: {'✓' if json_ld.get('openingHoursSpecification') else '✗'}")
+    print(f"  Geo Coordinates: {'✓' if json_ld.get('geo') else '✗'}")
+
+    # Check HTML snippet is present
+    has_html_snippet = len(result['html_snippet']) > 100
+    print(f"\n📝 HTML Snippet: {'✓ Generated' if has_html_snippet else '✗ Missing'}")
+
+    # Check implementation guide
+    has_guide = len(result['implementation_guide']) > 200
+    print(f"📖 Implementation Guide: {'✓ Generated' if has_guide else '✗ Missing'}")
+
+    return response.status_code == 200
+
+
 def test_stubbed_endpoints():
     """Test that stubbed endpoints return 501"""
-    print_section("Test 5: Stubbed Endpoints (Phases 4-6)")
+    print_section("Test 6: Stubbed Endpoints (Phases 5-6)")
 
     endpoints = [
-        ("Schema Generation", "POST", "/api/local/schema/generate", {
-            "site_url": "https://example.com"
-        }),
         ("Review Analysis", "POST", "/api/local/reviews/analyze", {
             "site_url": "https://example.com",
             "business_name": "Example Business"
@@ -246,7 +303,7 @@ def main():
     """Run all tests"""
     print("\n" + "=" * 60)
     print("  WEEK 14: LOCAL SEO & GEO ENHANCEMENT ENGINE")
-    print("  Phase 1-3: Citations & GBP Optimization - TESTING")
+    print("  Phase 1-4: Citations, GBP & Schema - TESTING")
     print("=" * 60)
 
     tests = [
@@ -255,6 +312,7 @@ def main():
         ("Citation Audit - With Inconsistencies", test_citation_audit_inconsistent),
         ("Get Citation Sources", test_get_citation_sources),
         ("Google Business Profile Optimization", test_gbp_optimization),
+        ("Local Schema Markup Generation", test_local_schema_generation),
         ("Stubbed Endpoints Check", test_stubbed_endpoints)
     ]
 
@@ -279,7 +337,7 @@ def main():
     print(f"\n  Results: {passed}/{total} tests passed")
 
     if passed == total:
-        print("\n  🎉 All tests passed! Phases 1-3 complete.")
+        print("\n  🎉 All tests passed! Phases 1-4 complete.")
     else:
         print(f"\n  ⚠️  {total - passed} test(s) failed.")
 

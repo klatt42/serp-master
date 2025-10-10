@@ -24,6 +24,7 @@ from app.models.local_models import (
 
 from app.services.local.citations.nap_auditor import NAPAuditor
 from app.services.local.gbp.gbp_optimizer import GBPOptimizer
+from app.services.local.schema.schema_generator import LocalSchemaGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ router = APIRouter(prefix="/api/local", tags=["local-seo"])
 # Initialize services
 nap_auditor = NAPAuditor()
 gbp_optimizer = GBPOptimizer()
+schema_generator = LocalSchemaGenerator()
 
 
 # ==================== Citation Audit Routes ====================
@@ -151,17 +153,20 @@ async def generate_local_schema(request: LocalSchemaRequest):
     try:
         logger.info(f"Generating local schema for: {request.site_url}")
 
-        # TODO: Implement schema generator in Phase 4
-        raise HTTPException(
-            status_code=501,
-            detail="Local schema generation not yet implemented. Complete Phase 4 to enable."
+        # Generate schema markup
+        schema_result = await schema_generator.generate_schema(request)
+
+        logger.info(
+            f"Schema generation complete. Type: {schema_result.detected_type.value}, "
+            f"Status: {schema_result.validation_status}, "
+            f"Rich features: {len(schema_result.rich_features_eligible)}"
         )
 
-    except HTTPException:
-        raise
+        return schema_result
+
     except Exception as e:
         logger.error(f"Error generating local schema: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Schema generation failed: {str(e)}")
 
 
 # ==================== Review Management Routes ====================
@@ -266,11 +271,11 @@ async def local_seo_health():
         "services": {
             "nap_auditor": "ready",
             "gbp_optimizer": "ready",
-            "schema_generator": "pending_phase_4",
+            "schema_generator": "ready",
             "review_manager": "pending_phase_5",
             "competitor_analyzer": "pending_phase_6",
             "geo_scorer": "pending_phase_8"
         },
-        "phase": "3_complete",
-        "next_phase": "phase_4_local_schema"
+        "phase": "4_complete",
+        "next_phase": "phase_5_review_management"
     }
