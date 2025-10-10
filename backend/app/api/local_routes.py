@@ -25,6 +25,7 @@ from app.models.local_models import (
 from app.services.local.citations.nap_auditor import NAPAuditor
 from app.services.local.gbp.gbp_optimizer import GBPOptimizer
 from app.services.local.schema.schema_generator import LocalSchemaGenerator
+from app.services.local.reviews.review_manager import ReviewManager
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ router = APIRouter(prefix="/api/local", tags=["local-seo"])
 nap_auditor = NAPAuditor()
 gbp_optimizer = GBPOptimizer()
 schema_generator = LocalSchemaGenerator()
+review_manager = ReviewManager()
 
 
 # ==================== Citation Audit Routes ====================
@@ -186,17 +188,20 @@ async def analyze_reviews(request: ReviewManagementRequest):
     try:
         logger.info(f"Starting review analysis for: {request.business_name}")
 
-        # TODO: Implement review manager in Phase 5
-        raise HTTPException(
-            status_code=501,
-            detail="Review management not yet implemented. Complete Phase 5 to enable."
+        # Perform review analysis
+        review_result = await review_manager.analyze_reviews(request)
+
+        logger.info(
+            f"Review analysis complete. Found {review_result.analysis.total_reviews} reviews, "
+            f"average rating: {review_result.analysis.average_rating}/5, "
+            f"review score: {review_result.review_score}/5"
         )
 
-    except HTTPException:
-        raise
+        return review_result
+
     except Exception as e:
         logger.error(f"Error analyzing reviews: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Review analysis failed: {str(e)}")
 
 
 # ==================== Local Competitor Routes ====================
@@ -272,10 +277,10 @@ async def local_seo_health():
             "nap_auditor": "ready",
             "gbp_optimizer": "ready",
             "schema_generator": "ready",
-            "review_manager": "pending_phase_5",
+            "review_manager": "ready",
             "competitor_analyzer": "pending_phase_6",
             "geo_scorer": "pending_phase_8"
         },
-        "phase": "4_complete",
-        "next_phase": "phase_5_review_management"
+        "phase": "5_complete",
+        "next_phase": "phase_6_competitor_analysis"
     }

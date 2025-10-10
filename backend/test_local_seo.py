@@ -256,15 +256,67 @@ def test_local_schema_generation():
     return response.status_code == 200
 
 
+def test_review_management():
+    """Test review management and analysis"""
+    print_section("Test 6: Review Management")
+
+    data = {
+        "site_url": "https://example-business.com",
+        "business_name": "Example Business LLC",
+        "platforms": ["Google", "Yelp"]
+    }
+
+    print("Request data:")
+    pprint(data)
+    print()
+
+    response = requests.post(
+        f"{BASE_URL}/api/local/reviews/analyze",
+        json=data
+    )
+
+    print(f"Status: {response.status_code}")
+    result = response.json()
+
+    print(f"\n📊 Review Analysis:")
+    print(f"  Total Reviews: {result['analysis']['total_reviews']}")
+    print(f"  Average Rating: {result['analysis']['average_rating']}/5")
+    print(f"  Response Rate: {result['analysis']['response_rate']:.0%}")
+    print(f"  Review Score (GEO): {result['review_score']}/5")
+
+    print(f"\n⭐ Rating Distribution:")
+    for rating in [5, 4, 3, 2, 1]:
+        count = result['analysis']['rating_distribution'][str(rating)]
+        print(f"  {rating} stars: {count}")
+
+    print(f"\n😊 Sentiment Breakdown:")
+    for sentiment, count in result['analysis']['sentiment_breakdown'].items():
+        print(f"  {sentiment.capitalize()}: {count}")
+
+    print(f"\n🔑 Top Keywords:")
+    for keyword, count in result['analysis']['common_keywords'][:5]:
+        print(f"  • {keyword}: {count} times")
+
+    if result['response_suggestions']:
+        print(f"\n💬 Response Suggestions ({len(result['response_suggestions'])}):")
+        for sugg in result['response_suggestions'][:2]:
+            print(f"\n  Reviewer: {sugg['reviewer']} ({sugg['rating']}⭐)")
+            print(f"  Platform: {sugg['platform']}")
+            print(f"  → Suggested response: {sugg['suggested_response'][:80]}...")
+
+    if result['reputation_recommendations']:
+        print(f"\n💡 Top 3 Recommendations:")
+        for rec in result['reputation_recommendations'][:3]:
+            print(f"  • {rec}")
+
+    return response.status_code == 200
+
+
 def test_stubbed_endpoints():
     """Test that stubbed endpoints return 501"""
-    print_section("Test 6: Stubbed Endpoints (Phases 5-6)")
+    print_section("Test 7: Stubbed Endpoints (Phases 6, 8)")
 
     endpoints = [
-        ("Review Analysis", "POST", "/api/local/reviews/analyze", {
-            "site_url": "https://example.com",
-            "business_name": "Example Business"
-        }),
         ("Competitor Analysis", "POST", "/api/local/competitors/analyze", {
             "site_url": "https://example.com",
             "business_name": "Example Business",
@@ -303,7 +355,7 @@ def main():
     """Run all tests"""
     print("\n" + "=" * 60)
     print("  WEEK 14: LOCAL SEO & GEO ENHANCEMENT ENGINE")
-    print("  Phase 1-4: Citations, GBP & Schema - TESTING")
+    print("  Phase 1-5: Citations, GBP, Schema & Reviews - TESTING")
     print("=" * 60)
 
     tests = [
@@ -313,6 +365,7 @@ def main():
         ("Get Citation Sources", test_get_citation_sources),
         ("Google Business Profile Optimization", test_gbp_optimization),
         ("Local Schema Markup Generation", test_local_schema_generation),
+        ("Review Management", test_review_management),
         ("Stubbed Endpoints Check", test_stubbed_endpoints)
     ]
 
@@ -337,7 +390,7 @@ def main():
     print(f"\n  Results: {passed}/{total} tests passed")
 
     if passed == total:
-        print("\n  🎉 All tests passed! Phases 1-4 complete.")
+        print("\n  🎉 All tests passed! Phases 1-5 complete.")
     else:
         print(f"\n  ⚠️  {total - passed} test(s) failed.")
 
