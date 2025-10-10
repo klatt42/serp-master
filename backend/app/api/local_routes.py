@@ -23,6 +23,7 @@ from app.models.local_models import (
 )
 
 from app.services.local.citations.nap_auditor import NAPAuditor
+from app.services.local.gbp.gbp_optimizer import GBPOptimizer
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ router = APIRouter(prefix="/api/local", tags=["local-seo"])
 
 # Initialize services
 nap_auditor = NAPAuditor()
+gbp_optimizer = GBPOptimizer()
 
 
 # ==================== Citation Audit Routes ====================
@@ -117,17 +119,19 @@ async def optimize_gbp(request: GBPOptimizationRequest):
     try:
         logger.info(f"Starting GBP optimization for: {request.site_url}")
 
-        # TODO: Implement GBP optimizer in Phase 3
-        raise HTTPException(
-            status_code=501,
-            detail="GBP optimization not yet implemented. Complete Phase 3 to enable."
+        # Perform GBP optimization
+        optimization_result = await gbp_optimizer.optimize_profile(request)
+
+        logger.info(
+            f"GBP optimization complete. Completeness: {optimization_result.completeness_score}/100, "
+            f"GBP score: {optimization_result.gbp_score}/12"
         )
 
-    except HTTPException:
-        raise
+        return optimization_result
+
     except Exception as e:
         logger.error(f"Error in GBP optimization: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"GBP optimization failed: {str(e)}")
 
 
 # ==================== Local Schema Routes ====================
@@ -261,12 +265,12 @@ async def local_seo_health():
         "status": "operational",
         "services": {
             "nap_auditor": "ready",
-            "gbp_optimizer": "pending_phase_3",
+            "gbp_optimizer": "ready",
             "schema_generator": "pending_phase_4",
             "review_manager": "pending_phase_5",
             "competitor_analyzer": "pending_phase_6",
             "geo_scorer": "pending_phase_8"
         },
-        "phase": "2_complete",
-        "next_phase": "phase_3_gbp_integration"
+        "phase": "3_complete",
+        "next_phase": "phase_4_local_schema"
     }

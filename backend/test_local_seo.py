@@ -147,14 +147,60 @@ def test_get_citation_sources():
     return response.status_code == 200
 
 
+def test_gbp_optimization():
+    """Test Google Business Profile optimization"""
+    print_section("Test 4: Google Business Profile Optimization")
+
+    data = {
+        "site_url": "https://example-business.com"
+    }
+
+    print("Request data:")
+    pprint(data)
+    print()
+
+    response = requests.post(
+        f"{BASE_URL}/api/local/gbp/optimize",
+        json=data
+    )
+
+    print(f"Status: {response.status_code}")
+    result = response.json()
+
+    print(f"\n📊 GBP Scores:")
+    print(f"  Completeness Score: {result['completeness_score']}/100")
+    print(f"  Total GBP Score: {result['gbp_score']}/12 points")
+    print(f"\n  Score Breakdown:")
+    print(f"    • Profile Complete: {result['profile_complete_score']}/5 points")
+    print(f"    • Verification: {result['verification_score']}/3 points")
+    print(f"    • Regular Posts: {result['posting_score']}/2 points")
+    print(f"    • Photos Updated: {result['photo_score']}/2 points")
+
+    print(f"\n⚙️  Profile Status:")
+    print(f"  • Verified: {'✓' if result['is_verified'] else '✗'}")
+    print(f"  • Profile Complete: {'✓' if result['profile_complete'] else '✗'}")
+    print(f"  • Regular Posts: {'✓' if result['has_regular_posts'] else '✗'}")
+    print(f"  • Updated Photos: {'✓' if result['has_updated_photos'] else '✗'}")
+
+    if result['missing_sections']:
+        print(f"\n📋 Missing Sections ({len(result['missing_sections'])}):")
+        for section in result['missing_sections']:
+            print(f"  - {section}")
+
+    if result['optimization_plan']:
+        print(f"\n💡 Top 3 Optimization Actions:")
+        for i, action in enumerate(result['optimization_plan'][:3], 1):
+            print(f"  {i}. [{action['priority'].upper()}] {action['action']}")
+            print(f"      → {action['impact']} ({action['timeframe']})")
+
+    return response.status_code == 200
+
+
 def test_stubbed_endpoints():
     """Test that stubbed endpoints return 501"""
-    print_section("Test 4: Stubbed Endpoints (Phases 3-6)")
+    print_section("Test 5: Stubbed Endpoints (Phases 4-6)")
 
     endpoints = [
-        ("GBP Optimization", "POST", "/api/local/gbp/optimize", {
-            "site_url": "https://example.com"
-        }),
         ("Schema Generation", "POST", "/api/local/schema/generate", {
             "site_url": "https://example.com"
         }),
@@ -200,7 +246,7 @@ def main():
     """Run all tests"""
     print("\n" + "=" * 60)
     print("  WEEK 14: LOCAL SEO & GEO ENHANCEMENT ENGINE")
-    print("  Phase 2: NAP Consistency Audit - TESTING")
+    print("  Phase 1-3: Citations & GBP Optimization - TESTING")
     print("=" * 60)
 
     tests = [
@@ -208,6 +254,7 @@ def main():
         ("Citation Audit - Perfect NAP", test_citation_audit_perfect),
         ("Citation Audit - With Inconsistencies", test_citation_audit_inconsistent),
         ("Get Citation Sources", test_get_citation_sources),
+        ("Google Business Profile Optimization", test_gbp_optimization),
         ("Stubbed Endpoints Check", test_stubbed_endpoints)
     ]
 
@@ -232,7 +279,7 @@ def main():
     print(f"\n  Results: {passed}/{total} tests passed")
 
     if passed == total:
-        print("\n  🎉 All tests passed! Phase 2 complete.")
+        print("\n  🎉 All tests passed! Phases 1-3 complete.")
     else:
         print(f"\n  ⚠️  {total - passed} test(s) failed.")
 
