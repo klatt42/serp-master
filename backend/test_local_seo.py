@@ -312,18 +312,81 @@ def test_review_management():
     return response.status_code == 200
 
 
+def test_competitor_analysis():
+    """Test local competitor analysis"""
+    print_section("Test 7: Local Competitor Analysis")
+
+    data = {
+        "site_url": "https://example-business.com",
+        "business_name": "Example Business LLC",
+        "address": "123 Main Street, Anytown, CA 90210",
+        "radius_miles": 5,
+        "target_keywords": ["professional services", "business consulting"],
+        "max_competitors": 5
+    }
+
+    print("Request data:")
+    pprint(data)
+    print()
+
+    response = requests.post(
+        f"{BASE_URL}/api/local/competitors/analyze",
+        json=data
+    )
+
+    print(f"Status: {response.status_code}")
+    result = response.json()
+
+    print(f"\n📊 Competitor Landscape:")
+    print(f"  Competitors Found: {len(result['competitors'])}")
+    print(f"  Your Rank: #{result['comparison']['your_rank']} out of {result['comparison']['total_competitors'] + 1}")
+
+    print(f"\n⭐ Your Metrics vs. Market Average:")
+    print(f"  Google Rating: {result['comparison']['your_google_rating']} vs {result['comparison']['avg_google_rating']}")
+    print(f"  Google Reviews: {result['comparison']['your_google_reviews']} vs {result['comparison']['avg_google_reviews']}")
+    print(f"  Citations: {result['comparison']['your_citation_count']} vs {result['comparison']['avg_citation_count']}")
+    print(f"  Response Rate: {result['comparison']['your_response_rate']:.0%} vs {result['comparison']['avg_response_rate']:.0%}")
+
+    if result['competitors']:
+        print(f"\n🏢 Top Competitors:")
+        for i, comp in enumerate(result['competitors'][:3], 1):
+            print(f"  {i}. {comp['name']}")
+            print(f"      Distance: {comp['distance_miles']} miles")
+            print(f"      Google: {comp['google_rating']}⭐ ({comp['google_reviews']} reviews)")
+            print(f"      Citations: {comp['citation_count']}")
+
+    if result['citation_gaps']:
+        print(f"\n📋 Top Citation Gaps ({len(result['citation_gaps'])}):")
+        for gap in result['citation_gaps'][:3]:
+            print(f"  • {gap['source']} (importance: {gap['importance']}/10)")
+            print(f"      → {gap['opportunity']}")
+
+    if result['keyword_gaps']:
+        print(f"\n🔑 Keyword Opportunities ({len(result['keyword_gaps'])}):")
+        for gap in result['keyword_gaps'][:3]:
+            print(f"  • \"{gap['source']}\" - {len(gap['competitors_using'])} competitors ranking")
+
+    if result['recommendations']:
+        print(f"\n💡 Top 3 Strategic Recommendations:")
+        for rec in result['recommendations'][:3]:
+            print(f"  • {rec}")
+
+    print(f"\n✅ Strengths:")
+    for strength in result['comparison']['strengths'][:3]:
+        print(f"  • {strength}")
+
+    print(f"\n⚠️  Weaknesses:")
+    for weakness in result['comparison']['weaknesses'][:3]:
+        print(f"  • {weakness}")
+
+    return response.status_code == 200
+
+
 def test_stubbed_endpoints():
     """Test that stubbed endpoints return 501"""
-    print_section("Test 7: Stubbed Endpoints (Phases 6, 8)")
+    print_section("Test 8: Stubbed Endpoints (Phase 8)")
 
     endpoints = [
-        ("Competitor Analysis", "POST", "/api/local/competitors/analyze", {
-            "site_url": "https://example.com",
-            "business_name": "Example Business",
-            "address": "123 Main St",
-            "radius_miles": 10,
-            "target_keywords": ["test"]
-        }),
         ("Complete GEO Audit", "POST", "/api/local/geo/audit", {
             "site_url": "https://example.com",
             "business_name": "Example Business",
@@ -355,7 +418,7 @@ def main():
     """Run all tests"""
     print("\n" + "=" * 60)
     print("  WEEK 14: LOCAL SEO & GEO ENHANCEMENT ENGINE")
-    print("  Phase 1-5: Citations, GBP, Schema & Reviews - TESTING")
+    print("  Phase 1-6: Full Local SEO Stack - TESTING")
     print("=" * 60)
 
     tests = [
@@ -366,6 +429,7 @@ def main():
         ("Google Business Profile Optimization", test_gbp_optimization),
         ("Local Schema Markup Generation", test_local_schema_generation),
         ("Review Management", test_review_management),
+        ("Local Competitor Analysis", test_competitor_analysis),
         ("Stubbed Endpoints Check", test_stubbed_endpoints)
     ]
 
@@ -390,7 +454,7 @@ def main():
     print(f"\n  Results: {passed}/{total} tests passed")
 
     if passed == total:
-        print("\n  🎉 All tests passed! Phases 1-5 complete.")
+        print("\n  🎉 All tests passed! Phases 1-6 complete.")
     else:
         print(f"\n  ⚠️  {total - passed} test(s) failed.")
 

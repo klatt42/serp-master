@@ -26,6 +26,7 @@ from app.services.local.citations.nap_auditor import NAPAuditor
 from app.services.local.gbp.gbp_optimizer import GBPOptimizer
 from app.services.local.schema.schema_generator import LocalSchemaGenerator
 from app.services.local.reviews.review_manager import ReviewManager
+from app.services.local.competitors.competitor_analyzer import LocalCompetitorAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -36,6 +37,7 @@ nap_auditor = NAPAuditor()
 gbp_optimizer = GBPOptimizer()
 schema_generator = LocalSchemaGenerator()
 review_manager = ReviewManager()
+competitor_analyzer = LocalCompetitorAnalyzer()
 
 
 # ==================== Citation Audit Routes ====================
@@ -221,17 +223,19 @@ async def analyze_competitors(request: LocalCompetitorRequest):
     try:
         logger.info(f"Starting competitor analysis for: {request.business_name}")
 
-        # TODO: Implement competitor analyzer in Phase 6
-        raise HTTPException(
-            status_code=501,
-            detail="Competitor analysis not yet implemented. Complete Phase 6 to enable."
+        # Perform competitor analysis
+        competitor_result = await competitor_analyzer.analyze_competitors(request)
+
+        logger.info(
+            f"Competitor analysis complete. Found {len(competitor_result.competitors)} competitors, "
+            f"rank: #{competitor_result.comparison.your_rank}/{competitor_result.comparison.total_competitors + 1}"
         )
 
-    except HTTPException:
-        raise
+        return competitor_result
+
     except Exception as e:
         logger.error(f"Error analyzing competitors: {str(e)}")
-        raise HTTPException(status_code=500, detail=str(e))
+        raise HTTPException(status_code=500, detail=f"Competitor analysis failed: {str(e)}")
 
 
 # ==================== Complete GEO Audit Routes ====================
@@ -278,9 +282,9 @@ async def local_seo_health():
             "gbp_optimizer": "ready",
             "schema_generator": "ready",
             "review_manager": "ready",
-            "competitor_analyzer": "pending_phase_6",
+            "competitor_analyzer": "ready",
             "geo_scorer": "pending_phase_8"
         },
-        "phase": "5_complete",
-        "next_phase": "phase_6_competitor_analysis"
+        "phase": "6_complete",
+        "next_phase": "phase_7_frontend_integration"
     }
