@@ -1,0 +1,429 @@
+{
+  "major_platforms": [
+    {
+      "name": "Google Business Profile",
+      "url": "https://business.google.com",
+      "category": "major",
+      "importance": 10,
+      "api_available": true
+    },
+    {
+      "name": "Yelp",
+      "url": "https://www.yelp.com",
+      "category": "major",
+      "importance": 9,
+      "api_available": true
+    },
+    {
+      "name": "Facebook Business",
+      "url": "https://www.facebook.com/business",
+      "category": "major",
+      "importance": 9,
+      "api_available": true
+    },
+    {
+      "name": "Apple Maps",
+      "url": "https://mapsconnect.apple.com",
+      "category": "major",
+      "importance": 8,
+      "api_available": true
+    },
+    {
+      "name": "Bing Places",
+      "url": "https://www.bingplaces.com",
+      "category": "major",
+      "importance": 7,
+      "api_available": true
+    },
+    {
+      "name": "LinkedIn Company",
+      "url": "https://www.linkedin.com",
+      "category": "major",
+      "importance": 7,
+      "api_available": false
+    },
+    {
+      "name": "Instagram Business",
+      "url": "https://www.instagram.com",
+      "category": "major",
+      "importance": 6,
+      "api_available": true
+    },
+    {
+      "name": "Twitter Business",
+      "url": "https://twitter.com",
+      "category": "major",
+      "importance": 5,
+      "api_available": true
+    },
+    {
+      "name": "Foursquare",
+      "url": "https://foursquare.com",
+      "category": "major",
+      "importance": 6,
+      "api_available": true
+    },
+    {
+      "name": "Nextdoor Business",
+      "url": "https://business.nextdoor.com",
+      "category": "major",
+      "importance": 6,
+      "api_available": false
+    }
+  ],
+  "business_directories": [
+    {
+      "name": "Better Business Bureau",
+      "url": "https://www.bbb.org",
+      "category": "local",
+      "importance": 8,
+      "api_available": false
+    },
+    {
+      "name": "Yellow Pages",
+      "url": "https://www.yellowpages.com",
+      "category": "local",
+      "importance": 7,
+      "api_available": false
+    },
+    {
+      "name": "Manta",
+      "url": "https://www.manta.com",
+      "category": "local",
+      "importance": 6,
+      "api_available": false
+    },
+    {
+      "name": "Superpages",
+      "url": "https://www.superpages.com",
+      "category": "local",
+      "importance": 5,
+      "api_available": false
+    },
+    {
+      "name": "Citysearch",
+      "url": "http://www.citysearch.com",
+      "category": "local",
+      "importance": 4,
+      "api_available": false
+    },
+    {
+      "name": "Merchant Circle",
+      "url": "https://www.merchantcircle.com",
+      "category": "local",
+      "importance": 5,
+      "api_available": false
+    },
+    {
+      "name": "Local.com",
+      "url": "https://www.local.com",
+      "category": "local",
+      "importance": 5,
+      "api_available": false
+    },
+    {
+      "name": "Hotfrog",
+      "url": "https://www.hotfrog.com",
+      "category": "local",
+      "importance": 4,
+      "api_available": false
+    },
+    {
+      "name": "EZlocal",
+      "url": "https://ezlocal.com",
+      "category": "local",
+      "importance": 4,
+      "api_available": false
+    },
+    {
+      "name": "Local Stack",
+      "url": "https://localstack.com",
+      "category": "local",
+      "importance": 3,
+      "api_available": false
+    }
+  ],
+  "industry_home_services": [
+    {
+      "name": "HomeAdvisor",
+      "url": "https://www.homeadvisor.com",
+      "category": "industry",
+      "importance": 8,
+      "industries": ["home_services", "contractors", "renovation"]
+    },
+    {
+      "name": "Angi (Angie's List)",
+      "url": "https://www.angi.com",
+      "category": "industry",
+      "importance": 8,
+      "industries": ["home_services", "contractors"]
+    },
+    {
+      "name": "Thumbtack",
+      "url": "https://www.thumbtack.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["home_services", "professionals"]
+    },
+    {
+      "name": "Porch",
+      "url": "https://porch.com",
+      "category": "industry",
+      "importance": 6,
+      "industries": ["home_services", "contractors"]
+    },
+    {
+      "name": "Houzz",
+      "url": "https://www.houzz.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["home_improvement", "design", "contractors"]
+    }
+  ],
+  "industry_food_hospitality": [
+    {
+      "name": "TripAdvisor",
+      "url": "https://www.tripadvisor.com",
+      "category": "industry",
+      "importance": 9,
+      "industries": ["restaurants", "hotels", "travel"]
+    },
+    {
+      "name": "OpenTable",
+      "url": "https://www.opentable.com",
+      "category": "industry",
+      "importance": 8,
+      "industries": ["restaurants"]
+    },
+    {
+      "name": "Zagat",
+      "url": "https://www.zagat.com",
+      "category": "industry",
+      "importance": 6,
+      "industries": ["restaurants"]
+    },
+    {
+      "name": "Zomato",
+      "url": "https://www.zomato.com",
+      "category": "industry",
+      "importance": 6,
+      "industries": ["restaurants"]
+    },
+    {
+      "name": "Grubhub",
+      "url": "https://www.grubhub.com",
+      "category": "industry",
+      "importance": 5,
+      "industries": ["restaurants", "delivery"]
+    }
+  ],
+  "industry_healthcare": [
+    {
+      "name": "Healthgrades",
+      "url": "https://www.healthgrades.com",
+      "category": "industry",
+      "importance": 8,
+      "industries": ["healthcare", "doctors", "hospitals"]
+    },
+    {
+      "name": "Vitals",
+      "url": "https://www.vitals.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["healthcare", "doctors"]
+    },
+    {
+      "name": "WebMD",
+      "url": "https://doctor.webmd.com",
+      "category": "industry",
+      "importance": 6,
+      "industries": ["healthcare", "doctors"]
+    },
+    {
+      "name": "Zocdoc",
+      "url": "https://www.zocdoc.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["healthcare", "doctors", "dentists"]
+    }
+  ],
+  "industry_legal": [
+    {
+      "name": "Avvo",
+      "url": "https://www.avvo.com",
+      "category": "industry",
+      "importance": 8,
+      "industries": ["legal", "attorneys"]
+    },
+    {
+      "name": "Justia",
+      "url": "https://www.justia.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["legal", "attorneys"]
+    },
+    {
+      "name": "FindLaw",
+      "url": "https://www.findlaw.com",
+      "category": "industry",
+      "importance": 6,
+      "industries": ["legal", "attorneys"]
+    },
+    {
+      "name": "Lawyers.com",
+      "url": "https://www.lawyers.com",
+      "category": "industry",
+      "importance": 6,
+      "industries": ["legal", "attorneys"]
+    }
+  ],
+  "industry_automotive": [
+    {
+      "name": "Cars.com",
+      "url": "https://www.cars.com",
+      "category": "industry",
+      "importance": 8,
+      "industries": ["automotive", "dealers"]
+    },
+    {
+      "name": "Edmunds",
+      "url": "https://www.edmunds.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["automotive", "dealers"]
+    },
+    {
+      "name": "CarGurus",
+      "url": "https://www.cargurus.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["automotive", "dealers"]
+    },
+    {
+      "name": "AutoTrader",
+      "url": "https://www.autotrader.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["automotive", "dealers"]
+    }
+  ],
+  "industry_real_estate": [
+    {
+      "name": "Zillow",
+      "url": "https://www.zillow.com",
+      "category": "industry",
+      "importance": 9,
+      "industries": ["real_estate"]
+    },
+    {
+      "name": "Realtor.com",
+      "url": "https://www.realtor.com",
+      "category": "industry",
+      "importance": 9,
+      "industries": ["real_estate"]
+    },
+    {
+      "name": "Trulia",
+      "url": "https://www.trulia.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["real_estate"]
+    },
+    {
+      "name": "Redfin",
+      "url": "https://www.redfin.com",
+      "category": "industry",
+      "importance": 7,
+      "industries": ["real_estate"]
+    }
+  ],
+  "chamber_and_local": [
+    {
+      "name": "Chamber of Commerce (Local)",
+      "url": "https://www.uschamber.com/co",
+      "category": "local",
+      "importance": 7,
+      "note": "Search for local chapter"
+    },
+    {
+      "name": "City Government Website",
+      "url": null,
+      "category": "government",
+      "importance": 6,
+      "note": "Check city's official business directory"
+    },
+    {
+      "name": "County Government Website",
+      "url": null,
+      "category": "government",
+      "importance": 5,
+      "note": "Check county's official business directory"
+    },
+    {
+      "name": "State Business Directory",
+      "url": null,
+      "category": "government",
+      "importance": 5,
+      "note": "Check state's official business registry"
+    }
+  ],
+  "data_aggregators": [
+    {
+      "name": "Neustar Localeze",
+      "url": "https://www.neustar.biz/resources/tools/localeze-data-distribution",
+      "category": "aggregator",
+      "importance": 9,
+      "note": "Data distributor to 100+ directories"
+    },
+    {
+      "name": "Acxiom",
+      "url": "https://www.acxiom.com",
+      "category": "aggregator",
+      "importance": 8,
+      "note": "Major data aggregator"
+    },
+    {
+      "name": "Data Axle (Infogroup)",
+      "url": "https://www.data-axle.com",
+      "category": "aggregator",
+      "importance": 8,
+      "note": "Powers many directories"
+    },
+    {
+      "name": "Factual",
+      "url": "https://www.factual.com",
+      "category": "aggregator",
+      "importance": 7,
+      "note": "Location data provider"
+    }
+  ],
+  "review_platforms": [
+    {
+      "name": "Trustpilot",
+      "url": "https://www.trustpilot.com",
+      "category": "reviews",
+      "importance": 6,
+      "api_available": true
+    },
+    {
+      "name": "Sitejabber",
+      "url": "https://www.sitejabber.com",
+      "category": "reviews",
+      "importance": 4,
+      "api_available": false
+    },
+    {
+      "name": "Consumer Affairs",
+      "url": "https://www.consumeraffairs.com",
+      "category": "reviews",
+      "importance": 5,
+      "api_available": false
+    }
+  ],
+  "metadata": {
+    "total_sources": 60,
+    "last_updated": "2025-10-09",
+    "version": "1.0",
+    "notes": "This list covers major platforms, industry-specific directories, local chambers, government sites, data aggregators, and review platforms. Actual citation coverage should prioritize based on industry and location."
+  }
+}
